@@ -1,8 +1,10 @@
 import math
 
-from selenium.common.exceptions import NoSuchElementException, NoAlertPresentException
+from selenium.common.exceptions import NoSuchElementException, NoAlertPresentException, TimeoutException
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
 
-from .locators import ProductPageLocators
+from .locators import ProductPageLocators, BasePageLocators
 
 
 class BasePage():
@@ -10,6 +12,13 @@ class BasePage():
         self.browser = browser
         self.url = url
         self.browser.implicitly_wait(timeout)
+
+    def go_to_login_page(self):
+        link = self.browser.find_element(*BasePageLocators.LOGIN_LINK)
+        link.click()
+
+    def should_be_login_link(self):
+        assert self.is_element_present(*BasePageLocators.LOGIN_LINK), "Login link is not presented"
 
     def open(self):
         self.browser.get(self.url)
@@ -47,3 +56,20 @@ class BasePage():
         product_price = self.browser.find_element(*ProductPageLocators.PRODUCT_PRICE).text
         basket_total_price_message = self.browser.find_element(*ProductPageLocators.BASKET_TOTAL_PRICE_MESSAGE).text
         assert product_price == basket_total_price_message, "No product price in the message"
+
+    def is_not_element_present(self, how, what, timeout=4):
+        try:
+            WebDriverWait(self.browser, timeout).until(ec.presence_of_element_located((how, what)))
+        except TimeoutException:
+            return True
+
+        return False
+
+    def is_disappeared(self, how, what, timeout=4):
+        try:
+            WebDriverWait(self.browser, timeout, 1, TimeoutException). \
+                until_not(ec.presence_of_element_located((how, what)))
+        except TimeoutException:
+            return False
+
+        return True
