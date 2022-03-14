@@ -6,6 +6,7 @@ import pytest
 
 from .pages.login_page import LoginPage
 from .pages.product_page import ProductPage
+from .pages.basket_page import BasketPage
 import faker
 
 
@@ -26,7 +27,7 @@ def generate_password(password_length=9):
 def test_guest_can_add_product_to_basket(browser, number):
     # link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer6"
     link = f"http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer{number}"
-    page = ProductPage(browser, link)
+    page = BasketPage(browser, link)
     page.open()
     page.add_product_to_basket()
     page.should_be_adding_message()
@@ -36,7 +37,7 @@ def test_guest_can_add_product_to_basket(browser, number):
 
 def test_guest_cant_see_success_message(browser):
     link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/"
-    page = ProductPage(browser, link)
+    page = BasketPage(browser, link)
     page.open()
     page.should_not_be_success_message()
 
@@ -108,7 +109,7 @@ def test_guest_can_go_to_login_page_from_product_page(browser):
 @pytest.mark.need_review
 def test_guest_cant_see_product_in_basket_opened_from_product_page(browser):
     link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/"
-    page = ProductPage(browser, link)
+    page = BasketPage(browser, link)
     page.open()
     page.go_to_basket_page()
     page.basket_should_be_empty()
