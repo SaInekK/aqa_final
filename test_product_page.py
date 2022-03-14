@@ -16,9 +16,29 @@ def generate_email():
 
 
 def generate_password(password_length=9):
-    temp = random.choices(string.printable, k=password_length)
+    temp = random.choices(string.ascii_letters, k=password_length)
     password = ''.join(temp)
     return password
+
+
+@pytest.mark.need_review
+@pytest.mark.parametrize('number', [*range(7), pytest.param(7, marks=pytest.mark.xfail(reason='bugged')), *range(8, 10)])
+def test_guest_can_add_product_to_basket(browser, number):
+    # link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer6"
+    link = f"http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer{number}"
+    page = ProductPage(browser, link)
+    page.open()
+    page.add_product_to_basket()
+    page.should_be_adding_message()
+    page.should_be_price_in_basket_total_message()
+    # time.sleep(5)
+
+
+def test_guest_cant_see_success_message(browser):
+    link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/"
+    page = ProductPage(browser, link)
+    page.open()
+    page.should_not_be_success_message()
 
 
 class TestUserAddToBasketFromProductPage():
@@ -30,11 +50,11 @@ class TestUserAddToBasketFromProductPage():
         self.login_page.register_new_user(generate_email(), generate_password())
         self.login_page.should_be_authorized_user()
 
-
+    @pytest.mark.need_review
+    @pytest.mark.xfail(reason='bugged')
     # @pytest.mark.parametrize('number', [*range(7), pytest.param(7, marks=pytest.mark.xfail(reason='bugged')), *range(8, 10)])
     def test_user_can_add_product_to_basket(self, browser):
-        # link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=newYear2019"
-        link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer6"
+        link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer7"
         # link = f"http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer{number}"
         page = ProductPage(browser, link)
         page.open()
@@ -75,6 +95,7 @@ def test_guest_should_see_login_link_on_product_page(browser):
     page.should_be_login_link()
 
 
+@pytest.mark.need_review
 def test_guest_can_go_to_login_page_from_product_page(browser):
     link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/"
     page = ProductPage(browser, link)
@@ -84,6 +105,7 @@ def test_guest_can_go_to_login_page_from_product_page(browser):
     login_page.should_be_login_page()
 
 
+@pytest.mark.need_review
 def test_guest_cant_see_product_in_basket_opened_from_product_page(browser):
     link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/"
     page = ProductPage(browser, link)
